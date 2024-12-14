@@ -1,0 +1,69 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Your existing model definitions remain unchanged
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  userType  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  vendor    Vendor?
+  host      Host?
+}
+
+model Vendor {
+  id           String        @id @default(cuid())
+  userId       String        @unique
+  user         User          @relation(fields: [userId], references: [id])
+  businessName String
+  category     String
+  location     String
+  contact      String
+  applications Application[]
+}
+
+model Host {
+  id               String   @id @default(cuid())
+  userId           String   @unique
+  user             User     @relation(fields: [userId], references: [id])
+  organizationName String
+  contact          String
+  markets          Market[]
+}
+
+model Market {
+  id           String        @id @default(cuid())
+  name         String
+  date         DateTime
+  location     String
+  description  String
+  capacity     Int
+  fees         Float
+  hostId       String
+  host         Host          @relation(fields: [hostId], references: [id])
+  applications Application[]
+}
+
+model Application {
+  id        String   @id @default(cuid())
+  vendorId  String
+  vendor    Vendor   @relation(fields: [vendorId], references: [id])
+  marketId  String
+  market    Market   @relation(fields: [marketId], references: [id])
+  status    String
+  products  String
+  boothSize String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
